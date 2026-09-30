@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# generated outputs
+trend_labels.csv
+trend_segments.csv
+trend_lab.html
