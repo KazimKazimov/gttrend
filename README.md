@@ -83,3 +83,42 @@ labels["D"][-1]   # 1 up, 0 sideways, -1 down
 Any change to an algorithm goes into both `trend_algos.py` and `algos.js`. Then run
 `python -m pytest -q` (the parity test needs Node) and rebuild the example page with
 `python make_page.py data/ust10_monthly.csv --out examples/ust10_trend_lab.html`.
+
+## Trend-detection gym: do other variables help in real time?
+
+`gym/` is a walk-forward evaluation harness for detectors that use outside variables (2Y, breakevens,
+inflation, activity, credit, equities, dollar, ...) to detect the 10Y's trend state in real time
+(nowcast) and ahead of time (3 and 6 months).
+
+```bash
+pip install -r requirements.txt
+python scripts/fetch_public_data.py        # monthly predictor panel -> data/predictors_monthly.csv
+python -m pytest -q tests/test_gym.py      # includes the no-look-ahead tests
+python run_gym.py --vars y2 mich1          # one-off matched test of a variable
+python -m gym.experiments                  # full study -> results/gym_results_default.json (~25 min)
+python -m gym.frontier                     # delay vs false-alarm curves (added to the same file)
+python scripts/build_report.py             # interactive page -> examples/trend_gym_report.html
+```
+
+**Guarantees.** At each month-end a detector sees only the real-time panel: market data through that
+month, macro data lagged by its release delay (`pub_lag` in `data/predictors_meta.csv`). It is refit
+every 12 months on *vintage* labels, computed from the 10Y up to the refit date only; it is scored
+against the final ex-post labels on months whose label is settled. `tests/test_gym.py` reruns each
+detector on data cut at 2008 and requires identical forecasts up to the cut.
+
+**Detectors** (`gym/detectors.py`): `RuleDetector` (method D/A real-time state), `CompositeRule` (rule
+machine on a 10Y + beta-scaled X blend), `LogitDetector` and `GBMDetector` (label-then-learn with lagged
+features), `MSDetector` (3-state Markov switching; X as extra observables `obs=` or driving the
+transition probabilities `tvtp=`), `Climatology`. Anything with `fit(gym, T)` / `predict(gym, t0, t1)`
+works, and `TrendEnv` offers a gym-style `reset()` / `step()` loop for custom agents.
+
+**Measures** (`gym/metrics.py`): balanced accuracy, Brier skill, log score, ROC AUC; per-trend delay,
+hit rate, capture of the move, false alarms per decade, flips per year; P&L of a duration position that
+follows the nowcast; Diebold-Mariano, block-bootstrap and Wilcoxon tests for matched comparisons.
+
+**Your own series.** A monthly CSV (date + one column per series) and a meta CSV (`id, kind, pub_lag,
+name`; kind is `rate`, `price` or `yoy`):
+
+```bash
+python run_gym.py --add-csv bbg_series.csv --add-meta bbg_meta.csv --vars MOVE CESI --models logit ms-tvtp
+```

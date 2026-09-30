@@ -1,0 +1,25 @@
+id,name,group,kind,pub_lag,unit,start,end,n,source,url
+y10,"US 10-year Treasury yield (monthly avg, GS10)",target,rate,0,%,1953-04,2026-08,881,FRED GS10 via datasets/bond-yields-us-10y; Aug 2026 from DGS10 daily,https://raw.githubusercontent.com/datasets/bond-yields-us-10y/main/data/monthly.csv
+y10_eom,"US 10-year Treasury yield, month-end (DGS10)",context,rate,0,%,1962-01,2026-08,776,FRED DGS10,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/DGS10.csv
+y2,"US 2-year Treasury yield (monthly avg, DGS2)",front_end,rate,0,%,1976-06,2026-08,603,FRED DGS2,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/DGS2.csv
+ff,Effective fed funds rate (FEDFUNDS),policy,rate,0,%,1954-07,2026-08,866,FRED FEDFUNDS,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/FEDFUNDS.csv
+y5,"US 5-year Treasury yield (monthly avg, DGS5)",curve,rate,0,%,1962-01,2026-08,776,FRED DGS5,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/real_rates.csv
+y30,"US 30-year Treasury yield (monthly avg, DGS30)",curve,rate,0,%,1977-02,2026-08,595,FRED DGS30 (gap 2002-2006),https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/real_rates.csv
+be10,10-year breakeven inflation (T10YIE),breakevens,rate,0,%,2003-01,2026-08,284,FRED T10YIE,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/real_rates.csv
+fwd5y5y,5y5y forward inflation expectation (T5YIFR),breakevens,rate,0,%,2003-01,2026-08,284,FRED T5YIFR,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/real_rates.csv
+tips10,10-year TIPS real yield (DFII10),breakevens,rate,0,%,2003-01,2026-08,284,FRED DFII10,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/real_rates.csv
+clev10,Cleveland Fed 10-year expected inflation,infl_exp,rate,1,%,1982-01,2026-08,536,FRED EXPINF10YR,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/inflation_expectations.csv
+mich1,UMich 1-year inflation expectations (MICH),infl_exp,rate,0,%,1978-01,2026-08,584,FRED MICH,https://raw.githubusercontent.com/soohucn-gif/macro5-dashboard/main/data/inflation_expectations.csv
+cpi,"CPI-U all items, NSA (YoY %)",infl_real,yoy,1,% YoY,1947-01,2026-07,954,BLS CUUR0000SA0 via datasets/cpi-us (not revised),https://raw.githubusercontent.com/datasets/cpi-us/main/data/cpiai.csv
+core_cpi,"Core CPI (CPILFESL, YoY %)",infl_real,yoy,1,% YoY,1957-01,2026-08,835,FRED CPILFESL,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/CPILFESL.csv
+core_pce,"Core PCE price index (PCEPILFE, YoY %)",infl_real,yoy,1,% YoY,1959-01,2026-07,811,FRED PCEPILFE,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/PCEPILFE.csv
+unrate,Unemployment rate (UNRATE),labor,rate,1,%,1948-01,2026-08,943,FRED UNRATE,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/UNRATE.csv
+payems,"Nonfarm payrolls (PAYEMS, YoY %)",labor,yoy,1,% YoY,1947-01,2026-08,956,FRED PAYEMS (revised data),https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/PAYEMS.csv
+baa10y,Moody's Baa yield minus 10-year Treasury (BAA10Y),credit,rate,0,%,1986-01,2026-08,488,FRED BAA10Y,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/BAA10Y.csv
+vix,CBOE VIX (monthly avg of closes),risk,price,0,index,1990-01,2026-08,440,CBOE via datasets/finance-vix,https://raw.githubusercontent.com/datasets/finance-vix/main/data/vix-daily.csv
+spx,"S&P 500 (monthly avg, Shiller)",risk,price,0,index,1947-01,2026-08,956,Shiller via datasets/s-and-p-500,https://raw.githubusercontent.com/datasets/s-and-p-500/main/data/data.csv
+wti,WTI crude oil spot (monthly avg),commod,price,0,$/bbl,1986-01,2026-08,488,EIA via datasets/oil-prices,https://raw.githubusercontent.com/datasets/oil-prices/main/data/wti-monthly.csv
+gold,Gold price (monthly avg),commod,price,0,$/oz,1947-01,2026-08,956,datasets/gold-prices,https://raw.githubusercontent.com/datasets/gold-prices/main/data/monthly.csv
+usd,"US dollar vs major currencies (constructed, H.10 monthly avgs)",dollar,price,0,index,1971-01,2026-08,668,FRED H.10 via datasets/exchange-rates; fixed weights EUR .39 CAD .30 JPY .13 GBP .11 CHF .04 AUD .02 SEK .01,https://raw.githubusercontent.com/datasets/exchange-rates/main/data/monthly.csv
+walcl,"Fed balance sheet total assets (WALCL, monthly avg)",fed_bs,price,0,$mn,2002-12,2026-08,285,FRED WALCL,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/WALCL.csv
+usrec,"NBER recession indicator (USREC), context only: not known in real time",context,rate,12,0/1,1947-01,2026-08,956,FRED USREC,https://raw.githubusercontent.com/theodorewright11/macro_eco_dashboard/main/public/data/fred/USREC.csv

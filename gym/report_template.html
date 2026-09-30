@@ -1,0 +1,485 @@
+<title>UST 10Y Trend Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: research note. Findings first, then the variable scorecard (the answer), then models, paths, lead-lag, method, data. Same type system and state colours as the UST 10Y Trend Lab. */
+:root{
+  --bg:#f7f8f9; --panel:#ffffff; --ink:#14181d; --ink2:#48515b; --muted:#76808a; --line:#dfe3e7; --line2:#eceff2;
+  --up:#d0463b; --down:#2a78d6; --side:#8f8c84; --accent:#1f5d8c;
+  --up-bg:rgba(208,70,59,.14); --down-bg:rgba(42,120,214,.14); --side-bg:rgba(143,140,132,.16);
+  --good:#1b7f5a; --good-bg:rgba(27,127,90,.16); --bad:#b8542d; --bad-bg:rgba(184,84,45,.16);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --f-display:"Newsreader",Georgia,serif; --f-body:"IBM Plex Sans",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121518; --panel:#1a1e22; --ink:#eef1f4; --ink2:#b7bfc8; --muted:#8a939c; --line:#2c3238; --line2:#23282d;
+  --up:#e5584c; --down:#3987e5; --side:#8f8c84; --accent:#7fb3e0;
+  --up-bg:rgba(229,88,76,.2); --down-bg:rgba(57,135,229,.2); --side-bg:rgba(143,140,132,.18);
+  --good:#4cc08f; --good-bg:rgba(76,192,143,.2); --bad:#e98a5e; --bad-bg:rgba(233,138,94,.2);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121518; --panel:#1a1e22; --ink:#eef1f4; --ink2:#b7bfc8; --muted:#8a939c; --line:#2c3238; --line2:#23282d;
+  --up:#e5584c; --down:#3987e5; --side:#8f8c84; --accent:#7fb3e0;
+  --up-bg:rgba(229,88,76,.2); --down-bg:rgba(57,135,229,.2); --side-bg:rgba(143,140,132,.18);
+  --good:#4cc08f; --good-bg:rgba(76,192,143,.2); --bad:#e98a5e; --bad-bg:rgba(233,138,94,.2);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+a{color:var(--accent)}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:grid;gap:34px}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(28px,4.4vw,42px);line-height:1.08;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:24px;margin:0;text-wrap:balance}
+h3{font-size:15px;margin:0;font-weight:600}
+p{margin:0}
+.lede{color:var(--ink2);max-width:72ch;margin-top:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mono,td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.sec{display:grid;gap:14px}
+.sec>.intro{color:var(--ink2);max-width:78ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in oklab,var(--bg) 92%,transparent);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+nav.toc a{font-size:13px;color:var(--ink2);text-decoration:none}
+nav.toc a:hover{color:var(--ink)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.wrap>*,.sec>*{min-width:0}
+.seg{display:inline-flex;flex-wrap:wrap;max-width:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{font:500 13px var(--f-body);color:var(--ink2);background:transparent;border:0;padding:6px 11px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg button:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.lab{font-size:12px;color:var(--muted)}
+.find{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.find .card{display:grid;gap:6px;align-content:start;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.find .big{font-family:var(--f-mono);font-size:26px;font-weight:500}
+.find .card p{color:var(--ink2);font-size:14px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--line2);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.02em;vertical-align:bottom}
+th:first-child,td:first-child{text-align:left}
+td.lbl{white-space:normal;min-width:190px;max-width:320px}
+tr.tier td{background:var(--bg);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--f-mono);border-bottom:1px solid var(--line)}
+td.cell{font-family:var(--f-mono);font-variant-numeric:tabular-nums;position:relative;cursor:default}
+td.cell.good{background:var(--good-bg)} td.cell.bad{background:var(--bad-bg)}
+td.cell.strong.good{box-shadow:inset 0 0 0 2px var(--good)} td.cell.strong.bad{box-shadow:inset 0 0 0 2px var(--bad)}
+td.cell .sig{color:var(--ink);font-weight:600}
+td.na{color:var(--muted)}
+td.best{font-weight:600;color:var(--ink)}
+.note{font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink2);align-items:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+#paths{width:100%;height:470px;position:relative;touch-action:pan-y}
+#front{width:100%;height:400px;position:relative}
+#front svg{display:block;width:100%;height:100%}
+#paths svg,.mini svg{display:block;width:100%;height:100%}
+svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:12px/1.45 var(--f-mono);color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.14);white-space:nowrap;z-index:3}
+.minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:10px 10px 6px;background:var(--panel);display:grid;gap:4px}
+.mini .t{font-size:13px;font-weight:500}
+.mini .s{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.mini .c{height:92px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.step{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--panel);display:grid;gap:6px;align-content:start}
+.step .k{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+.step p{font-size:14px;color:var(--ink2)}
+.lit{display:grid;gap:14px}
+.fam{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:16px;display:grid;gap:10px}
+.fam .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.fam p{color:var(--ink2);font-size:14px;max-width:88ch}
+.fam ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px;color:var(--ink2)}
+.refs{font-size:13px;color:var(--ink2);display:grid;gap:3px;padding-left:18px;margin:0}
+.pill{display:inline-block;font:500 11px var(--f-mono);padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink2)}
+.caveats{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--ink2);max-width:90ch}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">US Treasury 10-year · monthly · real-time evaluation</div>
+  <h1>Which variables help call 10Y trends in real time?</h1>
+  <p class="lede">A walk-forward gym scores trend detectors that only see data published by each month-end, against the ex-post up / sideways / down labels of method D. Every candidate variable is tested twice on the same months and the same training rows, with and without it.</p>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#findings">Findings</a><a href="#scorecard">Variable scorecard</a><a href="#models">Models</a><a href="#frontier">Delay vs false alarms</a><a href="#paths-sec">Real-time calls</a>
+  <a href="#leadlag">Lead-lag</a><a href="#gym">How the gym works</a><a href="#lit">Literature</a><a href="#data">Data</a><a href="#caveats">Caveats</a>
+  <span style="flex:1"></span>
+  <span class="lab">Truth</span><span class="seg" role="group" aria-label="Truth labels" id="tgtBtns"></span>
+  <span class="lab">Horizon</span><span class="seg" role="group" aria-label="Horizon" id="hBtns"></span>
+</nav>
+
+<section class="sec" id="findings">
+  <h2>Findings</h2>
+  <div class="find" id="findCards"></div>
+  <div class="panel" id="findText"></div>
+</section>
+
+<section class="sec" id="scorecard">
+  <h2>Variable scorecard</h2>
+  <p class="intro">Each cell is the model <b>with</b> the variable minus the same model <b>without</b> it, trained on identical rows and scored on identical months. Green cells improve detection, orange cells make it worse; an outline and a dot mark differences that pass the test named under the table at the 10% level. Hover a cell for both models' values.</p>
+  <div class="ctl"><span class="lab">Metric</span><span class="seg" role="group" aria-label="Scorecard metric" id="metBtns"></span></div>
+  <div class="panel tbl"><table id="score"></table></div>
+  <p class="note" id="scoreNote"></p>
+</section>
+
+<section class="sec" id="models">
+  <h2>Model leaderboard</h2>
+  <p class="intro">All detectors on one window. "Own" models see only the 10Y's history; "all X" models see every variable available in the window. Models with trained parameters share the same first training month, set by the latest-starting variable.</p>
+  <div class="ctl"><span class="lab">Window</span><span class="seg" role="group" aria-label="Scoring window" id="tierBtns"></span><span class="note" id="tierNote"></span></div>
+  <div class="panel tbl"><table id="lead"></table></div>
+  <p class="note">Median delay: months from a trend's first month to the first correct call (negative means called before it began, possible only for forecasts). Capture: share of the trend's full move still ahead when it was called. P&L: long duration when the call is down, short when up, flat when sideways, month-end to month-end, bp of yield per year (nowcasts only).</p>
+</section>
+
+<section class="sec" id="frontier">
+  <h2>Delay versus false alarms</h2>
+  <p class="intro">A probabilistic detector can wait for confidence before it switches: the call moves to a new state only when that state's probability reaches a threshold. Each curve sweeps the threshold from plain argmax (the most jumpy point) to 0.90; the rule machines are single points. Down and to the left is better. Hollow markers miss more than 10% of the trends, so a short delay there is not a win.</p>
+  <div class="ctl"><span class="lab">Window</span><span class="seg" role="group" aria-label="Frontier window" id="frBtns"></span><span class="note" id="frNote"></span></div>
+  <div class="panel"><div id="front"></div></div>
+  <div class="panel tbl"><table id="frTable"></table></div>
+  <p class="note">Each cell: median delay in months · false alarms per 10 years · share of trends called. The thresholds were not chosen out of sample; read the table as a menu of trade-offs, and compare windows L and M for stability.</p>
+</section>
+
+<section class="sec" id="paths-sec">
+  <h2>Real-time calls against the ex-post truth</h2>
+  <p class="intro">Top: the 10Y with the ex-post trend shading. Bottom: the probabilities a detector gave at the time, drawn at the month they refer to. A good detector's colours line up with the shading above it and change colour soon after the shading does.</p>
+  <div class="ctl"><span class="lab">Detector</span><span class="seg" role="group" aria-label="Detector" id="pathBtns"></span></div>
+  <div class="panel"><div class="legend"><span><i style="background:var(--up)"></i>Up (yields rising)</span><span><i style="background:var(--side)"></i>Sideways</span><span><i style="background:var(--down)"></i>Down (yields falling)</span><span class="note" id="pathNote"></span></div><div id="paths"></div></div>
+</section>
+
+<section class="sec" id="leadlag">
+  <h2>Does the variable turn before the 10Y?</h2>
+  <p class="intro">Ex-post trends of each variable, dated with the same retracement machine on a volatility-scaled threshold, matched to the 10Y's trend starts within ±12 months (1978 onward). A positive lead means the variable turned first. The small charts show concordance, the share of months in which the 10Y's state equals the variable's state k months earlier. Unemployment, the credit spread and the VIX are sign-flipped, because they usually fall when yields trend up.</p>
+  <div class="panel tbl"><table id="llTable"></table></div>
+  <div class="minis" id="minis"></div>
+</section>
+
+<section class="sec" id="gym">
+  <h2>How the gym works</h2>
+  <div class="steps">
+    <div class="step"><span class="k">Information set</span><p>At each month-end the detector sees the real-time panel: market series through that month, macro series lagged by their release delay (CPI, payrolls, unemployment, PCE, Cleveland Fed: one month). A missed release keeps the last published value.</p></div>
+    <div class="step"><span class="k">Training labels</span><p>Every 12 months the detector is refit on labels computed from the 10Y up to that date only (vintage labels), never on the final labels, which use future data.</p></div>
+    <div class="step"><span class="k">Forecasts</span><p>The frozen model gives P(down, sideways, up) for the current month (nowcast) and for 3 and 6 months ahead (ex ante), every month of the next year.</p></div>
+    <div class="step"><span class="k">Scoring</span><p>Forecasts are scored against the final ex-post labels, only on months whose label is settled (before the last, still-open segment).</p></div>
+    <div class="step"><span class="k">Matched comparison</span><p>A variable's effect is the difference between the model with and without it, trained on the same rows and scored on the same months, with Diebold–Mariano, block-bootstrap and Wilcoxon tests.</p></div>
+    <div class="step"><span class="k">No look-ahead, tested</span><p>Unit tests rerun each detector on data cut at 2008 and require identical forecasts up to the cut; features computed on cut data must equal those computed on full data.</p></div>
+  </div>
+  <div class="panel tbl"><table id="measures"></table></div>
+</section>
+
+<section class="sec" id="lit">
+  <h2>Literature survey</h2>
+  <p class="intro">Three families of methods use outside variables to detect or anticipate regime changes. The gym implements the first two in full and a simple member of the third.</p>
+  <div class="lit" id="litBox"></div>
+</section>
+
+<section class="sec" id="data">
+  <h2>Data</h2>
+  <p class="intro">Monthly panel, 1947 to August 2026, built by <span class="mono">scripts/fetch_public_data.py</span> from public GitHub mirrors of FRED, CBOE, EIA, BLS, Shiller and H.10 files (FRED itself was not reachable from the build environment). Drop your own series into the same layout to test them.</p>
+  <div class="panel tbl"><table id="dataTable"></table></div>
+</section>
+
+<section class="sec" id="caveats">
+  <h2>Caveats and next steps</h2>
+  <ul class="caveats" id="cavList"></ul>
+</section>
+</div>
+
+<script>
+const D = __DATA__;
+const TARGETS = Object.keys(D.results);
+let S = {tgt: TARGETS[0], h: 0, metric: "d_bss", tier: "L", path: "MS own"};
+const $ = id => document.getElementById(id);
+const fmt = (v, d=2, sign=false) => v == null || isNaN(v) ? "–" : (sign && v > 0 ? "+" : "") + Number(v).toFixed(d);
+const R = () => D.results[S.tgt];
+const TNAME = {default: "Page defaults", fixed100: "Fixed 100bp"};
+const HNAME = {0: "Now", 3: "3m ahead", 6: "6m ahead"};
+
+function btns(id, items, cur, onpick){
+  const el = $(id);
+  el.innerHTML = items.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join("");
+  el.onclick = e => { const b = e.target.closest("button"); if(!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); onpick(b.dataset.v); };
+}
+
+/* ------------------------------------------------------------------ scorecard */
+const FAMS = [["Logit","Logit"],["GBM","Boosted trees"],["MS-obs","MS: X observed"],["MS-tvtp","MS: X in transitions"],["Rule+X","Rule on 10Y+X blend"]];
+const METRICS = {
+  d_bss: {label: "Brier skill", dir: 1, dec: 3, sig: r => r.p_dm < .10, scale: .08, test: "Diebold–Mariano test on the monthly Brier loss (HAC variance, Harvey–Leybourne–Newbold correction)."},
+  d_bal_acc: {label: "Balanced accuracy", dir: 1, dec: 3, sig: r => r.bal_acc_ci90 && (r.bal_acc_ci90[0] > 0 || r.bal_acc_ci90[1] < 0), scale: .06, test: "90% moving-block bootstrap interval (24-month blocks) that excludes zero."},
+  d_delay_med: {label: "Median delay (months)", dir: -1, dec: 1, sig: r => r.p_wilcoxon_delay < .10, scale: 4, test: "Wilcoxon signed-rank test on the per-trend delays of the two models."},
+  d_capture: {label: "Capture", dir: 1, dec: 2, sig: r => false, scale: .15, test: "No test (few trends): read as descriptive."},
+  d_false_alarms_10y: {label: "False alarms / 10y", dir: -1, dec: 1, sig: r => false, scale: 3, test: "No test (few episodes): read as descriptive."},
+  d_pnl_bp_yr: {label: "P&L (bp/yr)", dir: 1, dec: 0, sig: r => false, scale: 30, test: "No test; nowcasts only."},
+};
+const ROWS = () => {
+  const seen = []; const out = [];
+  R().addone.forEach(r => { if(!seen.includes(r.var)){ seen.push(r.var); out.push({id: r.var, label: r.label, tier: r.tier, members: r.members}); } });
+  const order = {L: 0, M: 1, S: 2};
+  return out.sort((a, b) => order[a.tier] - order[b.tier] || (a.id.startsWith("B_") - b.id.startsWith("B_")));
+};
+function renderScore(){
+  const m = METRICS[S.metric], rows = ROWS(), tiers = R().tiers;
+  const byKey = {}; R().addone.forEach(r => { if(r.h == S.h) byKey[r.var + "|" + r.family] = r; });
+  let h = `<thead><tr><th>Variable</th>${FAMS.map(f => `<th>${f[1]}</th>`).join("")}</tr></thead><tbody>`;
+  let lastTier = null;
+  const tierTxt = {L: "Window L", M: "Window M", S: "Window S"};
+  rows.forEach(row => {
+    if(row.tier !== lastTier){ const t = tiers[row.tier];
+      h += `<tr class="tier"><td colspan="${FAMS.length + 1}">${tierTxt[row.tier]} · scored ${t.eval_start} to ${t.eval_end} · ${t.n_events} trends</td></tr>`; lastTier = row.tier; }
+    h += `<tr><td class="lbl">${row.label}</td>`;
+    FAMS.forEach(([f]) => {
+      const r = byKey[row.id + "|" + f];
+      if(!r || r[S.metric] == null || (S.metric === "d_pnl_bp_yr" && S.h != 0)){ h += `<td class="cell na">·</td>`; return; }
+      const v = r[S.metric], good = v * m.dir > 0, bad = v * m.dir < 0, sig = m.sig(r);
+      const key = S.metric.replace("d_", "");
+      const tip = `${row.label}, ${f}, ${HNAME[S.h]}&#10;with: ${fmt(r.aug[key], m.dec)}  without: ${fmt(r.base[key], m.dec)}&#10;DM p=${fmt(r.p_dm)}  delay p=${fmt(r.p_wilcoxon_delay)}  trained from ${r.train_from || "start"}`;
+      const small = Math.abs(v) < m.scale * .1;
+      h += `<td class="cell ${small ? "" : good ? "good" : bad ? "bad" : ""} ${sig ? "strong" : ""}" title="${tip}">${fmt(v, m.dec, true)}${sig ? ' <span class="sig">•</span>' : ""}</td>`;
+    });
+    h += `</tr>`;
+  });
+  $("score").innerHTML = h + "</tbody>";
+  $("scoreNote").textContent = `Significance: ${m.test} ${m.dir < 0 ? "Negative values are improvements." : "Positive values are improvements."} Blank cells: the family does not apply (boosted trees were run on blocks only, the MS observable model on single variables only, the blended rule on rate-like variables only).`;
+}
+
+/* ------------------------------------------------------------------ leaderboard */
+const COLS = [["bal_acc","Balanced acc.",3,1],["bss","Brier skill",3,1],["auc_up","AUC up",2,1],["auc_down","AUC down",2,1],["delay_med","Median delay",1,-1],
+  ["hit_rate","Hit rate",2,1],["capture","Capture",2,1],["false_alarms_10y","False alarms /10y",1,-1],["flips_yr","Flips /yr",2,-1],["pnl_bp_yr","P&L bp/yr",0,1],["sharpe","Sharpe",2,1]];
+function renderLead(){
+  const rows = R().leaderboard.filter(r => r.tier === S.tier && r.h == S.h);
+  const t = R().tiers[S.tier];
+  $("tierNote").textContent = `Scored ${t.eval_start} to ${t.eval_end}, ${t.n_events} ex-post trends; trained models start ${rows[0] ? rows[0].train_from : ""}.`;
+  const best = {};
+  // best per column among real detectors; delay and false alarms only count if the detector calls at least 90% of trends
+  const eligible = rows.filter(r => r.model !== "Climatology");
+  COLS.forEach(([k,, , dir]) => { const v = eligible.filter(r => !["delay_med", "false_alarms_10y", "flips_yr"].includes(k) || r.hit_rate >= .9).map(r => r[k]).filter(x => x != null);
+    if(v.length) best[k] = dir > 0 ? Math.max(...v) : Math.min(...v); });
+  let h = `<thead><tr><th>Detector</th>${COLS.map(c => `<th>${c[1]}</th>`).join("")}</tr></thead><tbody>`;
+  rows.forEach(r => { h += `<tr><td>${r.model}</td>` + COLS.map(([k, , d]) => {
+      if((k === "pnl_bp_yr" || k === "sharpe") && S.h != 0) return `<td class="n na">–</td>`;
+      const isBest = r.model !== "Climatology" && r[k] != null && r[k] === best[k] && (!["delay_med", "false_alarms_10y", "flips_yr"].includes(k) || r.hit_rate >= .9);
+      return `<td class="n ${isBest ? "best" : ""}">${fmt(r[k], d)}</td>`; }).join("") + `</tr>`; });
+  const tr = rows[0];
+  $("lead").innerHTML = h + `</tbody>` + (tr ? `<tfoot><tr><td class="note">Truth changes state</td>${COLS.map(([k]) => `<td class="n note">${k === "flips_yr" ? fmt(tr.truth_flips_yr, 2) : ""}</td>`).join("")}</tr></tfoot>` : "");
+}
+
+/* ------------------------------------------------------------------ real-time paths */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function renderPaths(){
+  const P = R().paths, el = $("paths");
+  if(!P || !P.models){ el.innerHTML = ""; return; }
+  const W = Math.max(el.clientWidth, 320), H = el.clientHeight || 470, narrow = W < 560;
+  const ml = narrow ? 40 : 48, mr = 10, mt = 8, gap = 26, split = 0.56;
+  const hsel = S.h == 6 ? 3 : S.h;
+  const probs = (P.models[S.path] || {})[String(hsel)] || [];
+  const n = P.dates.length, y = P.y, tr = P.truth;
+  const X = i => ml + i / (n - 1) * (W - ml - mr);
+  const yb = mt + (H - mt - 22 - gap) * split;
+  let lo = Math.min(...y), hi = Math.max(...y); const pad = (hi - lo) * .06; lo -= pad; hi += pad;
+  const Y = v => mt + (hi - v) / (hi - lo) * (yb - mt);
+  const pt = yb + gap, pb = H - 22;
+  const bg = {"1": "var(--up-bg)", "0": "var(--side-bg)", "-1": "var(--down-bg)"};
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="10Y yield with ex-post trends and real-time probabilities">`;
+  let st = 0;
+  for(let i = 1; i <= n; i++) if(i === n || tr[i] !== tr[st]){ s += `<rect x="${X(st)}" y="${mt}" width="${Math.max(X(Math.min(i, n - 1)) - X(st), .5)}" height="${yb - mt}" style="fill:${bg[tr[st]]}"/>`; st = i; }
+  const step = hi - lo > 6 ? 2 : 1;
+  for(let v = Math.ceil(lo / step) * step; v <= hi; v += step) s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--line)"/><text x="${ml - 6}" y="${Y(v) + 4}" text-anchor="end">${v}%</text>`;
+  const y0 = +P.dates[0].slice(0, 4), y1 = +P.dates[n - 1].slice(0, 4), ys = narrow ? 10 : 5;
+  for(let yr = Math.ceil(y0 / ys) * ys; yr <= y1; yr += ys){ const i = P.dates.indexOf(yr + "-01"); if(i < 0) continue;
+    s += `<line x1="${X(i)}" x2="${X(i)}" y1="${mt}" y2="${pb}" style="stroke:var(--line)" stroke-dasharray="2 3"/><text x="${X(i)}" y="${H - 6}" text-anchor="middle">${yr}</text>`; }
+  s += `<path d="${y.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1)).join("")}" fill="none" style="stroke:var(--ink)" stroke-width="1.6"/>`;
+  // stacked probabilities, drawn at target month (origin + h)
+  const PY = v => pt + (1 - v) * (pb - pt);
+  const layers = [["var(--down)", 0], ["var(--side)", 1], ["var(--up)", 2]];
+  let cum = new Array(n).fill(0);
+  layers.forEach(([col, j]) => {
+    let top = [], bot = [];
+    for(let i = 0; i < probs.length; i++){ const k = i + hsel; if(k >= n) break; const p = probs[i]; if(!p || p.some(x => x == null)) continue;
+      const b = cum[k], t = b + p[j]; bot.push([X(k), PY(b)]); top.push([X(k), PY(t)]); cum[k] = t; }
+    if(top.length) s += `<path d="M${top.map(q => q.join(",")).join("L")}L${bot.reverse().map(q => q.join(",")).join("L")}Z" style="fill:${col}" fill-opacity=".85"/>`;
+  });
+  s += `<text x="${ml - 6}" y="${pt + 8}" text-anchor="end">1</text><text x="${ml - 6}" y="${pb}" text-anchor="end">0</text>`;
+  s += `<line id="xh" x1="0" x2="0" y1="${mt}" y2="${pb}" style="stroke:var(--ink2)" stroke-dasharray="2 2" visibility="hidden"/><rect x="${ml}" y="0" width="${W - ml - mr}" height="${H}" fill="transparent"/></svg><div class="tip" id="ptip" hidden></div>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), tip = el.querySelector("#ptip"), xh = el.querySelector("#xh");
+  const NAME = {"1": "up", "0": "sideways", "-1": "down"};
+  const move = e => { const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+    const i = Math.min(n - 1, Math.max(0, Math.round((px - ml) / (W - ml - mr) * (n - 1)))); const xx = X(i);
+    xh.setAttribute("x1", xx); xh.setAttribute("x2", xx); xh.setAttribute("visibility", "visible");
+    const p = probs[i - hsel];
+    tip.innerHTML = `<b>${P.dates[i]} · ${y[i].toFixed(2)}%</b><br>truth: ${NAME[tr[i]]}` + (p ? `<br>P(down) ${(100*p[0]).toFixed(0)}%  P(side) ${(100*p[1]).toFixed(0)}%  P(up) ${(100*p[2]).toFixed(0)}%` + (hsel ? `<br>forecast made ${P.dates[i - hsel]}` : "") : "");
+    tip.hidden = false; const tw = tip.offsetWidth, cx = xx * r.width / W; tip.style.left = (cx + 14 + tw > r.width ? cx - 14 - tw : cx + 14) + "px"; tip.style.top = "10px"; };
+  svg.addEventListener("pointermove", move); svg.addEventListener("pointerdown", move);
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; xh.setAttribute("visibility", "hidden"); });
+  $("pathNote").textContent = S.h == 6 ? "6m forecasts are not stored for this chart; showing 3m ahead." : (hsel ? `Forecasts made ${hsel} months earlier.` : "Nowcasts.");
+}
+
+/* ------------------------------------------------------------------ lead-lag */
+function renderLL(){
+  const L = (R().leadlag || []).slice(), lab = {}; R().addone.forEach(r => lab[r.var] = r.label);
+  L.sort((a, b) => (b.lead_med ?? -99) - (a.lead_med ?? -99));
+  let h = `<thead><tr><th>Variable</th><th>10Y turns matched</th><th>Median lead (m)</th><th>Share turning first</th><th>Best lag (m)</th><th>Concordance at best</th><th>At lag 0</th></tr></thead><tbody>`;
+  L.forEach(r => { h += `<tr><td>${lab[r.var] || r.var}</td><td class="n">${r.matched} / ${r.n_turns}</td><td class="n">${fmt(r.lead_med, 1, true)}</td><td class="n">${fmt(r.share_first, 2)}</td><td class="n">${r.best_lag ?? "–"}</td><td class="n">${fmt(r.conc_best, 2)}</td><td class="n">${fmt(r.conc_0, 2)}</td></tr>`; });
+  $("llTable").innerHTML = h + "</tbody>";
+  $("minis").innerHTML = L.map(r => {
+    const ks = Object.keys(r.conc).map(Number).sort((a, b) => a - b), vs = ks.map(k => r.conc[k]);
+    const W = 220, H = 92, ml = 26, mb = 16, lo = Math.min(...vs.filter(v => v != null)) - .02, hi = Math.max(...vs.filter(v => v != null)) + .02;
+    const X = k => ml + (k - ks[0]) / (ks[ks.length - 1] - ks[0]) * (W - ml - 6), Y = v => 4 + (hi - v) / (hi - lo) * (H - mb - 4);
+    let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="${X(0)}" x2="${X(0)}" y1="4" y2="${H - mb}" style="stroke:var(--line)"/>`;
+    s += `<path d="${ks.map((k, i) => (i ? "L" : "M") + X(k).toFixed(1) + "," + Y(vs[i]).toFixed(1)).join("")}" fill="none" style="stroke:var(--accent)" stroke-width="1.6"/>`;
+    if(r.best_lag != null) s += `<circle cx="${X(r.best_lag)}" cy="${Y(r.conc[r.best_lag])}" r="3.2" style="fill:var(--accent)"/>`;
+    s += `<text x="${X(-12)}" y="${H - 3}">-12</text><text x="${X(0)}" y="${H - 3}" text-anchor="middle">0</text><text x="${X(12)}" y="${H - 3}" text-anchor="end">+12</text><text x="2" y="12">${hi.toFixed(2)}</text></svg>`;
+    return `<div class="mini"><span class="t">${lab[r.var] || r.var}</span><span class="s">best lag ${r.best_lag ?? "–"} · lead ${fmt(r.lead_med, 1, true)}m</span><div class="c">${s}</div></div>`;
+  }).join("");
+}
+
+
+/* ------------------------------------------------------------------ frontier */
+const SER = {"MS own": "var(--s1)", "MS + UMich infl. exp. (transitions)": "var(--s3)", "Logit own": "var(--s2)",
+             "Logit + Cleveland 10y infl. exp.": "var(--s4)", "GBM own": "var(--s5)"};
+let FR = "L";
+function renderFrontier(){
+  const F = FR === "L" ? R().frontier : R().frontier_M, el = $("front");
+  if(!F){ el.innerHTML = `<p class="note">Not computed for this target.</p>`; $("frTable").innerHTML = ""; return; }
+  const hk = S.h == 0 ? "0" : "3";
+  const curves = Object.entries(F.curves).filter(([k]) => SER[k] || k.startsWith("Rule"));
+  const pts = curves.flatMap(([, c]) => c[hk]);
+  const W = Math.max(el.clientWidth, 320), H = el.clientHeight || 400, ml = 46, mr = 150 * (W > 600) + 16, mt = 12, mb = 34;
+  const xmax = Math.max(8, ...pts.map(p => p.delay_med ?? 0)) + 1, ymax = Math.max(4, ...pts.map(p => p.false_alarms_10y ?? 0)) * 1.08;
+  const xmin = Math.min(0, ...pts.map(p => p.delay_med ?? 0)) - (hk === "3" ? 1 : 0);
+  const X = v => ml + (v - xmin) / (xmax - xmin) * (W - ml - mr), Y = v => mt + (1 - v / ymax) * (H - mt - mb);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Median delay against false alarms per decade">`;
+  for(let v = Math.ceil(xmin); v <= xmax; v += (xmax - xmin > 12 ? 2 : 1)) s += `<line x1="${X(v)}" x2="${X(v)}" y1="${mt}" y2="${H - mb}" style="stroke:var(--line2)"/><text x="${X(v)}" y="${H - mb + 14}" text-anchor="middle">${v}</text>`;
+  for(let v = 0; v <= ymax; v += (ymax > 8 ? 2 : 1)) s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--line2)"/><text x="${ml - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  s += `<text x="${(ml + W - mr) / 2}" y="${H - 4}" text-anchor="middle">median delay after a trend starts (months)</text>`;
+  s += `<text transform="translate(12 ${(mt + H - mb) / 2}) rotate(-90)" text-anchor="middle">false alarms per 10 years</text>`;
+  const marks = [], labels = [], ruleLab = [];
+  curves.forEach(([name, c]) => {
+    const p = c[hk].filter(q => q.delay_med != null);
+    if(!p.length) return;
+    if(name.startsWith("Rule")){
+      const q = p[0], x = X(q.delay_med), y = Y(q.false_alarms_10y);
+      s += `<rect x="${x - 5}" y="${y - 5}" width="10" height="10" transform="rotate(45 ${x} ${y})" style="fill:var(--ink)"/>`;
+      let ly = y - 8;
+      ruleLab.forEach(o => { if(Math.abs(o.x - x) < 60 && Math.abs(o.y - ly) < 13) ly = y + 18; });
+      ruleLab.push({x, y: ly});
+      s += `<text x="${x + 9}" y="${ly}" style="fill:var(--ink2)">${name}</text>`;
+      marks.push({x, y, name, q}); return;
+    }
+    const col = SER[name];
+    s += `<path d="${p.map((q, i) => (i ? "L" : "M") + X(q.delay_med).toFixed(1) + "," + Y(q.false_alarms_10y).toFixed(1)).join("")}" fill="none" style="stroke:${col}" stroke-width="2"/>`;
+    p.forEach(q => { const hollow = q.hit_rate < .9; const x = X(q.delay_med), y = Y(q.false_alarms_10y);
+      s += `<circle cx="${x}" cy="${y}" r="4" style="fill:${hollow ? "var(--panel)" : col};stroke:${col}" stroke-width="2"/>`; marks.push({x, y, name, q}); });
+    labels.push({y: Y(p[0].false_alarms_10y) + 4, col, text: name.replace(" (transitions)", "").replace(" infl. exp.", "")});
+  });
+  // end labels on the right, pushed apart so they never overlap
+  if(W > 600){
+    labels.sort((a, b) => a.y - b.y);
+    for(let i = 1; i < labels.length; i++) if(labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
+    labels.forEach(l => { s += `<text x="${W - mr + 8}" y="${l.y}" style="fill:${l.col}">${l.text}</text>`; });
+  }
+  s += `</svg><div class="tip" id="ftip" hidden></div>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), tip = el.querySelector("#ftip");
+  svg.addEventListener("pointermove", ev => { const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width, py = (ev.clientY - r.top) * H / r.height;
+    let best = null, bd = 400; marks.forEach(m => { const d = (m.x - px) ** 2 + (m.y - py) ** 2; if(d < bd){ bd = d; best = m; } });
+    if(!best){ tip.hidden = true; return; }
+    const q = best.q;
+    tip.innerHTML = `<b>${best.name}</b><br>${q.theta ? "threshold " + q.theta.toFixed(2) : "plain call"}<br>delay ${fmt(q.delay_med, 1)}m · false alarms ${fmt(q.false_alarms_10y, 1)}/10y<br>trends called ${fmt(100 * q.hit_rate, 0)}% · capture ${fmt(q.capture, 2)} · bal. acc ${fmt(q.bal_acc, 2)}`;
+    tip.hidden = false; const cx = best.x * r.width / W, cy = best.y * r.height / H, tw = tip.offsetWidth;
+    tip.style.left = (cx + 12 + tw > r.width ? cx - 12 - tw : cx + 12) + "px"; tip.style.top = Math.max(0, cy - 30) + "px"; });
+  svg.addEventListener("pointerleave", () => tip.hidden = true);
+  $("frNote").textContent = `Scored ${FR === "L" ? R().tiers.L.eval_start : R().tiers.M.eval_start} to ${R().tiers.L.eval_end}; trained models start ${F.train_from}. ${S.h == 0 ? "Nowcasts." : "3-month-ahead forecasts."}`;
+  const TH = [0, .6, .7, .8, .9];
+  let h = `<thead><tr><th>Detector</th>${TH.map(t => `<th>${t ? "threshold " + t.toFixed(1) : "plain call"}</th>`).join("")}</tr></thead><tbody>`;
+  curves.forEach(([name, c]) => { h += `<tr><td>${name}</td>` + TH.map(t => { const q = c[hk].find(p => Math.abs(p.theta - t) < 1e-9);
+      return q ? `<td class="n">${fmt(q.delay_med, 1)} · ${fmt(q.false_alarms_10y, 1)} · ${fmt(100 * q.hit_rate, 0)}%</td>` : `<td class="n na">–</td>`; }).join("") + `</tr>`; });
+  $("frTable").innerHTML = h + "</tbody>";
+}
+
+/* ------------------------------------------------------------------ static parts */
+const MEASURES = [
+  ["Balanced accuracy", "Mean recall over down / sideways / up, so a model cannot score well by always calling the most common state."],
+  ["Brier skill", "1 − Brier(model) / Brier(climatology). The Brier score (the quadratic probability score of Diebold & Rudebusch 1989) rewards calibrated probabilities."],
+  ["AUC up / down", "Area under the ROC curve for 'up' and 'down' against the rest (Berge & Jordà 2011): ranking quality independent of a threshold."],
+  ["Median delay", "Months from a trend's first month to the first month the detector calls it; the core timeliness measure of real-time dating (Chauvet & Piger 2008)."],
+  ["Hit rate, capture", "Share of trends called before they ended; share of each trend's move still ahead when it was called."],
+  ["False alarms, flips", "Called trend episodes that never overlap a true trend in that direction, per 10 years; state changes per year. The delay/false-alarm trade-off is the quickest-detection problem (Page 1954; Lorden 1971)."],
+  ["Economic value", "P&L of a long/short duration position that follows the nowcast (Leitch & Tanner 1991: profits need not rank models like error measures do)."],
+  ["Tests", "Diebold–Mariano on Brier losses (HAC, HLN correction); moving-block bootstrap for accuracy differences; Wilcoxon signed-rank on paired delays."],
+];
+const LIT = [
+  {tag: "Method 1 · implemented", title: "Identify regimes ex post, then learn a real-time classifier from lagged predictors",
+   text: "Date trends with a rule (Bry–Boschan, Pagan–Sossounov, Lunde–Timmermann; here method D), then model P(state at t+h | information at t). Probit and logit models with leading indicators are the workhorse for recessions; dynamic versions add the lagged state, and machine-learning classifiers add non-linearity. Constructed states are Markov processes with censoring, so the lagged state belongs in the model. In the gym: multinomial logit with regularisation chosen by time-series cross-validation, and gradient-boosted trees; features are the 10Y's own momentum, drawdown and rule state plus each variable's volatility-scaled 3- and 12-month changes, spread to the 10Y and own trend state.",
+   refs: [["Estrella & Mishkin (1998), Predicting U.S. recessions: financial variables as leading indicators, REStat", "https://econpapers.repec.org/RePEc:tpr:restat:v:80:y:1998:i:1:p:45-61"],
+          ["Kauppi & Saikkonen (2008), Predicting U.S. recessions with dynamic binary response models, REStat", "https://direct.mit.edu/rest/article/90/4/777/57880/Predicting-U-S-Recessions-with-Dynamic-Binary"],
+          ["Nyberg (2013), Predicting bear and bull stock markets with dynamic binary time series models, JBF", "https://www.sciencedirect.com/science/article/abs/pii/S0378426613002264"],
+          ["Harding & Pagan (2011), An econometric analysis of some models for constructed binary time series, JBES", "https://ideas.repec.org/a/bes/jnlbes/v29i1y2011p86-95.html"],
+          ["Shu, Yu & Mulvey (2024), Dynamic asset allocation with asset-specific regime forecasts (jump-model labels + boosted trees), Annals of OR", "https://arxiv.org/abs/2406.09578"],
+          ["Pagan & Sossounov (2003), A simple framework for analysing bull and bear markets, JAE; Lunde & Timmermann (2004), JBES", "https://onlinelibrary.wiley.com/doi/full/10.1002/jae.664"]]},
+  {tag: "Method 2 · implemented", title: "Markov-switching models with covariates",
+   text: "The regime is a hidden Markov state. Outside variables enter either as extra observables that share the regime (multivariate and dynamic-factor Markov switching, which dates turning points in real time), or through the transition probabilities (time-varying transition probabilities, TVTP). Real time uses filtered probabilities, ex ante the predicted ones, ex post the smoothed ones. For bull and bear markets, rule-based dating wins in-sample while Markov switching forecasts better out of sample because it uses the variance as well as the mean. In the gym: a 3-state model with state-specific means and covariances on volatility-normalised monthly changes, states pinned to the vintage labels (free EM latched onto outlier months), X as observable or in a penalised transition logit.",
+   refs: [["Hamilton (1989), A new approach to the economic analysis of nonstationary time series and the business cycle, Econometrica", "https://doi.org/10.2307/1912559"],
+          ["Diebold, Lee & Weinbach (1994), Regime switching with time-varying transition probabilities; Filardo (1994), JBES", "https://www.researchgate.net/publication/5052311_Regime_switching_with_time-varying_transition_probabilities"],
+          ["Filardo (1998), Choosing information variables for transition probabilities in a TVTP Markov switching model, KC Fed RWP 98-09", "https://www.kansascityfed.org/documents/7002/choosing-information-variables-for-transition-probabilities-filardo-pdf-rwp98-091.pdf"],
+          ["Chauvet & Piger (2008), A comparison of the real-time performance of business cycle dating methods, JBES", "https://jeremypiger.com/assets/files/Chauvet_Piger_2008_JBES.pdf"],
+          ["Kole & van Dijk (2017), How to identify and forecast bull and bear markets?, JAE", "https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2511"],
+          ["Maheu, McCurdy & Song (2012), Components of bull and bear markets: bull corrections and bear rallies, JBES", "https://www.tandfonline.com/doi/abs/10.1080/07350015.2012.680412"],
+          ["Haase & Neuenkirch (2023), Predictability of bull and bear markets (MS-TVTP on 146 macro-financial variables), IJF", "https://ideas.repec.org/a/eee/intfor/v39y2023i2p587-605.html"],
+          ["Liu (2024), Identification and forecasting of bull and bear markets using multivariate returns, JAE", "https://ideas.repec.org/a/wly/japmet/v39y2024i5p723-745.html"],
+          ["Ang & Bekaert (2002), Regime switches in interest rates, JBES", "https://www.tandfonline.com/doi/abs/10.1198/073500102317351930"]]},
+  {tag: "Method 3 · simple version implemented", title: "Sequential change detection",
+   text: "Quickest-detection methods (CUSUM, Shiryaev–Roberts, Bayesian online changepoint detection) minimise the delay to detect a change subject to a false-alarm rate. The rule machines A and D are CUSUM-like drawdown/rally detectors on the yield level; statistical jump models add a jump penalty for persistence and support online inference. In the gym: the rule machine run on a blend of the 10Y and a beta-scaled outside yield (Rule+X); if the blend turns earlier, the variable leads.",
+   refs: [["Page (1954), Continuous inspection schemes, Biometrika; Lorden (1971), Annals of Math. Stat.", "https://doi.org/10.1093/biomet/41.1-2.100"],
+          ["Adams & MacKay (2007), Bayesian online changepoint detection", "https://arxiv.org/abs/0710.3742"],
+          ["Nystrup, Lindström & Madsen (2020), Learning hidden Markov models with persistent states by penalizing jumps, ESWA", "https://www.sciencedirect.com/science/article/abs/pii/S0957417420301329"],
+          ["Aydinhan, Kolm, Mulvey & Shu (2024), Identifying patterns in financial markets: extending the statistical jump model, Annals of OR", "https://link.springer.com/article/10.1007/s10479-024-06035-z"]]},
+  {tag: "Predictors", title: "Variables the literature uses for Treasury yields and regimes",
+   text: "Policy expectations and the front end (2Y yield, fed funds, term spread); forward rates and the curve; inflation, breakevens and survey or model inflation expectations; real activity and labour data; macro news; risk sentiment (equities, VIX, credit spreads) and the dollar; and the bond's own momentum. AQR's macro momentum uses one-year changes in growth and inflation, the 2Y yield, equities and FX, all bearish for bonds when rising. Two warnings apply to all of them: small-sample tests overstate how much macro variables add to the yield curve, and real-time (unrevised) data cut macro predictability of bond returns substantially.",
+   refs: [["Hanson & Stein (2015), Monetary policy and long-term real rates, JFE: a 100bp rise in the 2Y on FOMC days moves the 10Y forward real rate 42bp", "https://econpapers.repec.org/RePEc:eee:jfinec:v:115:y:2015:i:3:p:429-448"],
+          ["Brooks (2017), A half century of macro momentum, AQR", "https://www.aqr.com/Insights/Research/White-Papers/A-Half-Century-of-Macro-Momentum"],
+          ["Altavilla, Giannone & Modugno (2017), Low frequency effects of macroeconomic news on government bond yields, JME: news explains a third of quarterly yield moves", "https://ideas.repec.org/a/eee/moneco/v92y2017icp31-46.html"],
+          ["Cochrane & Piazzesi (2005), Bond risk premia, AER; Ludvigson & Ng (2009), Macro factors in bond risk premia, RFS", "https://doi.org/10.1257/0002828053828581"],
+          ["Cieslak & Povala (2015), Expected returns in Treasury bonds, RFS; Joslin, Priebsch & Singleton (2014), JF", "https://academic.oup.com/rfs/article-abstract/28/10/2859/1580557"],
+          ["Moskowitz, Ooi & Pedersen (2012), Time series momentum, JFE", "https://doi.org/10.1016/j.jfineco.2011.11.003"],
+          ["Bauer & Hamilton (2018), Robust bond risk premia, RFS", "https://www.nber.org/papers/w23480"],
+          ["Ghysels, Horan & Moench (2018), Forecasting through the rearview mirror: data revisions and bond return predictability, RFS", "https://ideas.repec.org:443/a/oup/rfinst/v31y2018i2p678-714..html"]]},
+  {tag: "Accuracy", title: "Measuring real-time detection",
+   text: "Recession-dating work scores probability forecasts with the quadratic probability (Brier) score and classification with ROC curves, and judges timeliness by how many months after a turning point it is called and how many false signals are given. Quickest-detection theory frames the delay against the false-alarm rate. Economic evaluation checks whether better statistics translate into better positions.",
+   refs: [["Diebold & Rudebusch (1989), Scoring the leading indicators, Journal of Business", "https://www.sas.upenn.edu/~fdiebold/papers2/Diebold-Rudebusch%20(1989).pdf"],
+          ["Berge & Jordà (2011), Evaluating the classification of economic activity into recessions and expansions, AEJ: Macro", "https://www.aeaweb.org/articles?id=10.1257/mac.3.2.246"],
+          ["Harding & Pagan (2002), Dissecting the cycle: a methodological investigation, JME (concordance)", "https://doi.org/10.1016/S0304-3932(01)00108-8"],
+          ["Diebold & Mariano (1995), Comparing predictive accuracy, JBES; Pesaran & Timmermann (1992), JBES", "https://doi.org/10.1080/07350015.1995.10524599"],
+          ["Leitch & Tanner (1991), Economic forecast evaluation: profits versus the conventional error measures, AER", "https://ideas.repec.org/a/aea/aecrev/v81y1991i3p580-90.html"]]},
+];
+function renderStatic(){
+  $("measures").innerHTML = `<thead><tr><th>Measure</th><th style="text-align:left">What it answers</th></tr></thead><tbody>` +
+    MEASURES.map(([a, b]) => `<tr><td>${a}</td><td style="text-align:left;white-space:normal">${b}</td></tr>`).join("") + `</tbody>`;
+  $("litBox").innerHTML = LIT.map(f => `<div class="fam"><span class="tag">${f.tag}</span><h3>${f.title}</h3><p>${f.text}</p><ol class="refs">${f.refs.map(([t, u]) => `<li><a href="${u}" target="_blank" rel="noopener">${t}</a></li>`).join("")}</ol></div>`).join("");
+  const M = D.meta;
+  $("dataTable").innerHTML = `<thead><tr><th>ID</th><th style="text-align:left">Series</th><th>Group</th><th>From</th><th>To</th><th>Release lag (m)</th><th style="text-align:left">Source</th></tr></thead><tbody>` +
+    M.map(r => `<tr><td class="mono">${r.id}</td><td class="lbl" style="text-align:left">${r.name}</td><td>${r.group}</td><td class="n">${r.start}</td><td class="n">${r.end}</td><td class="n">${r.pub_lag}</td><td style="text-align:left;white-space:normal;min-width:220px">${r.url ? `<a href="${r.url}" target="_blank" rel="noopener">${r.source}</a>` : r.source}</td></tr>`).join("") + `</tbody>`;
+}
+
+/* ------------------------------------------------------------------ findings (filled by build step) */
+const FINDINGS = __FINDINGS__;
+function renderFindings(){
+  const F = FINDINGS[S.tgt] || FINDINGS.default;
+  $("findCards").innerHTML = F.cards.map(c => `<div class="card"><span class="eyebrow">${c.k}</span><span class="big">${c.v}</span><p>${c.t}</p></div>`).join("");
+  $("findText").innerHTML = F.text;
+  $("cavList").innerHTML = F.caveats.map(c => `<li>${c}</li>`).join("");
+}
+
+function renderAll(){ renderFindings(); renderScore(); renderLead(); renderFrontier(); renderPaths(); renderLL(); }
+btns("tgtBtns", TARGETS.map(t => [t, TNAME[t]]), S.tgt, v => { S.tgt = v; renderAll(); });
+btns("hBtns", [[0, "Now"], [3, "3m ahead"], [6, "6m ahead"]], S.h, v => { S.h = +v; renderAll(); });
+btns("metBtns", Object.entries(METRICS).map(([k, m]) => [k, m.label]), S.metric, v => { S.metric = v; renderScore(); });
+btns("tierBtns", [["L", "L · from 1990"], ["M", "M · from 1997"], ["S", "S · from 2009"]], S.tier, v => { S.tier = v; renderLead(); });
+btns("frBtns", [["L", "L · from 1990"], ["M", "M · from 1997"]], FR, v => { FR = v; renderFrontier(); });
+btns("pathBtns", Object.keys(R().paths.models).map(k => [k, k]), S.path, v => { S.path = v; renderPaths(); });
+renderStatic(); renderAll();
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { renderPaths(); renderFrontier(); }, 150); });
+if(window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { renderPaths(); renderFrontier(); });
+</script>

@@ -6,3 +6,5 @@ __pycache__/
 trend_labels.csv
 trend_segments.csv
 trend_lab.html
+gym_addone.csv
+data/raw/
